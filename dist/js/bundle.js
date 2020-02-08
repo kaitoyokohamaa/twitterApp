@@ -1,0 +1,113 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/index.js");
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./src/js/index.js":
+/*!*************************!*\
+  !*** ./src/js/index.js ***!
+  \*************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _models_userlogin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./models/userlogin */ \"./src/js/models/userlogin.js\");\n\nconst sendHttpRequest = (method, url, data) => {\n    return fetch(url, {\n      method: method,\n      body: JSON.stringify(data),\n      headers: data ? { 'Content-Type': 'application/json' } : {}\n    }).then(response => {\n      if (response.status >= 400) {\n        // !response.ok\n        return response.json().then(errResData => {\n          const error = new Error('Something went wrong!');\n          error.data = errResData;\n          throw error;\n        });\n      }\n      return response.json();\n    });\n  };\nconst sendData = () => {\nsendHttpRequest('POST', 'https://teachapi.herokuapp.com/sign_up', {\n        \"sign_up_user_params\": {\n            \"name\": _models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"user_name\"].value,\n            \"bio\":  _models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"user_bio\"].value,\n            \"email\":  _models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"user_mail\"].value,\n            \"password\": _models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"user_pass\"].value,\n            \"password_confirmation\":  _models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"user_confirmpass\"].value\n        }\n    })\n    .then(json => {\n        //ユーザ生成時に以下の情報をローカルストレージに入れる。\n        localStorage.token = json.token,\n        localStorage.id = json.id,\n        localStorage.name = json.name,\n        localStorage.bio = json.bio\n        window.location.href = 'timeline.html';\n    })\n    .then(responseData => {\n        console.log(responseData);\n    })\n    \n    .catch(err => {\n        console.log(err, err.data);\n    });\n};\n_models_userlogin__WEBPACK_IMPORTED_MODULE_0__[\"postBtn\"].addEventListener('click', sendData);\n\n//# sourceURL=webpack:///./src/js/index.js?");
+
+/***/ }),
+
+/***/ "./src/js/models/userlogin.js":
+/*!************************************!*\
+  !*** ./src/js/models/userlogin.js ***!
+  \************************************/
+/*! exports provided: postBtn, user_name, user_bio, user_mail, user_pass, user_confirmpass */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"postBtn\", function() { return postBtn; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"user_name\", function() { return user_name; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"user_bio\", function() { return user_bio; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"user_mail\", function() { return user_mail; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"user_pass\", function() { return user_pass; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"user_confirmpass\", function() { return user_confirmpass; });\n// ユーザー登録\nconst postBtn = document.getElementById('post-btn');\nconst user_name=document.getElementById('UserName');\nconst user_bio=document.getElementById('User');\nconst user_mail=document.getElementById('Email');\nconst user_pass=document.getElementById('Password');\nconst user_confirmpass=document.getElementById('ConfirmPassword');\n\n\n\n\n\n//# sourceURL=webpack:///./src/js/models/userlogin.js?");
+
+/***/ })
+
+/******/ });
