@@ -1,3 +1,4 @@
+// ユーザー登録
 const postBtn = document.getElementById('post-btn');
 const user_name=document.getElementById('UserName');
 const user_bio=document.getElementById('User');
@@ -32,11 +33,21 @@ const sendData = () => {
                 "password_confirmation":  user_confirmpass.value
             }
         })
+        .then(json => {
+            //ユーザ生成時に以下の情報をローカルストレージに入れる。
+            localStorage.token = json.token,
+            localStorage.id = json.id,
+            localStorage.name = json.name,
+            localStorage.bio = json.bio
+            window.location.href = 'timeline.html';
+        })
         .then(responseData => {
             console.log(responseData);
         })
+        
         .catch(err => {
             console.log(err, err.data);
         });
 };
 postBtn.addEventListener('click', sendData);
+
