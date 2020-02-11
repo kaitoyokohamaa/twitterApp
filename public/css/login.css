@@ -163,3 +163,25 @@ body{
        width: 200px;
        height: 200px;
    }
+   /* ユーザー一覧 */
+   img.card-img-top {
+    width: 17%;
+    height: 32%;
+    border-radius: 50%;
+    margin-left: 3%;
+}
+
+h5.card-title {
+    color: black;
+    font-style: normal;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+p.card-text {
+    color: black;
+}
+.acount{
+    color: #2B2B2B;
+}
+

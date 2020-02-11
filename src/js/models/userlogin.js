@@ -1,4 +1,4 @@
-// ユーザー登録
+// いらない変数ども
 export const postBtn = document.getElementById('post-btn');
 export const user_name=document.getElementById('UserName');
 export const user_bio=document.getElementById('User');
