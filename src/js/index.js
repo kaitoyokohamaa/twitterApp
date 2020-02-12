@@ -110,10 +110,11 @@ if (postlgBtn) {
 // ユーザー一覧
 const getinfo = document.getElementById('post-lgtbtn');
 
+const　url='https://teachapi.herokuapp.com/users';
+
 if (!localStorage.token) {
   window.location.href = 'login.html';
 }
-
 const sendHttpRequestlgt = (method, url) => {
   return fetch(url, {
       method: method,
@@ -136,17 +137,20 @@ const sendHttpRequestlgt = (method, url) => {
     });
 };
 const sendlgdData = () => {
-  sendHttpRequestlgt('GET', 'https://teachapi.herokuapp.com/users')
+  sendHttpRequestlgt('GET',url )
     .then(json => {
-      const markup = `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+      let markup = "";
+      json.forEach(element => {
+      markup+= `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
         <div class="card-body">
-          <h5 class="card-title">${localStorage.name}</h5>
-          <p class="acount">＠${localStorage.token}</p>
-          <p class="card-text">${localStorage.bio}</p>
+          <h5 class="card-title">${element.name}</h5>
+          <p class="acount">＠${element.id}</p>
+          <p class="card-text">${element.bio}</p>
         </div>
       </div>
     </div>`;
-      const h=document.getElementById('userrs');
+  });
+      let h=document.getElementById('userrs');
       h.insertAdjacentHTML('beforeend', markup);
       console.log(json.stringify);
     })
@@ -157,7 +161,6 @@ const sendlgdData = () => {
       console.log(err, err.data);
     });
 };
-
 if (getinfo) {
   getinfo.addEventListener('click', sendlgdData);
 }
