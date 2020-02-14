@@ -147,7 +147,6 @@ const sendlgdData = () => {
           <p class="acount">＠${element.id}</p>
           <p class="card-text">${element.bio}</p>
           <p class="card-text"><a href="fix.html">ユーザー編集</a></p>
-          <p id="delet" class="card-text"><a href="user.html">ユーザー削除</a></p>
         </div>
       </div>
     </div>`;
@@ -240,7 +239,7 @@ const sendHttpRequesdtlge = (method, url, data) => {
 };
 
 const jsendlgDatasc = () => {
-  sendHttpRequesdtlge('DELETE', newurl, {})
+  sendHttpRequesdtlge('DELETE', newurl, )
     .then(json => {
       localStorage.name = json.name,
         localStorage.bio = json.bio
@@ -263,10 +262,10 @@ const sendfHttpRequestlg = (method, url, data) => {
   return fetch(url, {
     method: method,
     body: JSON.stringify(data),
-    headers:  {
+    headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + localStorage.token
-    } 
+    }
   }).then(response => {
     if (response.status >= 400) {
       // !response.ok
@@ -283,7 +282,7 @@ console.log(localStorage.token)
 const sendflgData = () => {
   sendfHttpRequestlg('POST', 'https://teachapi.herokuapp.com/posts', {
       "post_params": {
-        "text":document.getElementById('postpost').value,
+        "text": document.getElementById('postpost').value,
       }
     })
     .then(json => {
@@ -298,7 +297,7 @@ const sendflgData = () => {
       console.log(err, err.data);
     });
 };
-const postbttn=document.getElementById('post-lgvtbtnr')
+const postbttn = document.getElementById('post-lgvtbtnr')
 if (postbttn) {
   postbttn.addEventListener('click', sendflgData);
 }
@@ -367,4 +366,185 @@ const senddlgdData = () => {
 const timelinelogo = document.getElementById('logo')
 if (timelinelogo) {
   timelinelogo.addEventListener('click', senddlgdData);
+}
+//投稿編集
+const postrefix = document.getElementById("re_post")
+if (postrefix) {
+  postrefix.addEventListener("click", (event) => {
+    event.preventDefault();
+    const sendreposts = (method, url, data) => {
+      return fetch(url, {
+        method: method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      }).then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json().then(errResData => {
+            const error = new Error('Something went wrong!');
+            error.data = errResData;
+            throw error;
+          });
+        }
+        return response.json();
+      });
+    };
+    const edit_text_id = document.querySelector("#edit_text_id").value;
+    console.log(edit_text_id)
+    const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
+    const sendposts = () => {
+      sendreposts('PUT', reposturl, {
+          "post_params": {
+            "text": document.getElementById('repost').value,
+          }
+        })
+        .then(json => {
+          console.log(json)
+          localStorage.text = json.text;
+          window.location.href = 'timeline.html';
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    const repost_btn = document.getElementById('re_post')
+    const result = document.getElementsByClassName('btn-success');
+    console.log(repost_btn)
+    console.log(result)
+    if (repost_btn) {
+      repost_btn.addEventListener('click', sendposts);
+    }
+  });
+}
+//投稿削除
+const postdel = document.getElementById("del_post")
+if (postdel) {
+  postdel.addEventListener("click", (event) => {
+    event.preventDefault();
+    const deletrequest = (method, url, data) => {
+      return fetch(url, {
+        method: method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      }).then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json().then(errResData => {
+            const error = new Error('Something went wrong!');
+            error.data = errResData;
+            throw error;
+          });
+        }
+        return response.json();
+      });
+    };
+
+    const delet_text_id = document.querySelector("#edit_text_id").value;
+    const deleteurl = `https://teachapi.herokuapp.com/posts/${delet_text_id}`
+
+    const deletefetched = () => {
+      deletrequest('DELETE', deleteurl, )
+        .then(json => {
+          console.log(json)
+          window.location.href = 'timeline.html';
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    const del_posts = document.getElementById('del_post')
+    if (del_posts) {
+      del_posts.addEventListener('click', deletefetched);
+    }
+  });
+}
+//タイムラインのページを取得する。
+const show_timeline = document.getElementById('timeline_submit')
+if (show_timeline) {
+  show_timeline.addEventListener("click", (event) => {
+    event.preventDefault();
+    const users_pages = document.getElementById('pages').value;
+    const users_limits = document.getElementById('limits').value;
+    const users_querys = document.getElementById('querys').value;
+
+    const MY_url = `https://teachapi.herokuapp.com/users/${myID}/timeline?page=${users_pages}&limit=${users_limits}&query=${users_querys}`;
+
+    if (!localStorage.token) {
+      window.location.href = 'login.html';
+    }
+    const users_timeline = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const sendtimeline = () => {
+      users_timeline('GET', MY_url)
+        .then(json => {
+          console.log(json)
+          let time = "";
+          json.forEach(element => {
+            time += `<div class="twitter__block">
+        <figure>
+            <img src="./img/ryusei.jpg" />
+        </figure>
+        <div class="twitter__block-text">
+            <div class="name">${element.user.name}<span class="name_reply">@${element.id}</span></div>
+            <div class="date">${element.user.created_at}</div>
+            <div class="text">
+                ${element.text}
+            </div>
+            <div class="twitter__icon">
+                <span class="twitter-bubble"></span>
+                <span class="twitter-loop"></span>
+                <span class="twitter-heart"></span>
+            </div>
+        </div>
+    </div>`;
+          });
+          let hd = document.getElementById('timeline');
+          hd.insertAdjacentHTML('beforeend', time);
+          console.log(json.stringify);
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    const get_data = document.getElementById('timeline_submit')
+    if (get_data) {
+      get_data.addEventListener('click', sendtimeline);
+    }
+  });
 }
