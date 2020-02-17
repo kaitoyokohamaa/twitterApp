@@ -8,7 +8,9 @@ import {
   postlgBtn,
   user_maillg
 } from './models/userlogin';
-
+const getId = window.localStorage.getItem('id');
+const getChatRoomId = window.localStorage.getItem('chatRoomId');
+console.log(getChatRoomId)
 const sendHttpRequest = (method, url, data) => {
   return fetch(url, {
     method: method,
@@ -144,7 +146,7 @@ const sendlgdData = () => {
         markup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
         <div class="card-body">
           <h5 class="card-title">${element.name}</h5>
-          <p class="acount">＠${element.id}</p>
+           <p class="acount">＠${element.id}</p>
           <p class="card-text">${element.bio}</p>
           <p class="card-text"><a href="fix.html">ユーザー編集</a></p>
         </div>
@@ -481,7 +483,8 @@ if (show_timeline) {
     const users_limits = document.getElementById('limits').value;
     const users_querys = document.getElementById('querys').value;
 
-    const MY_url = `https://teachapi.herokuapp.com/users/${myID}/timeline?page=${users_pages}&limit=${users_limits}&query=${users_querys}`;
+
+    const MY_url = `https://teachapi.herokuapp.com/posts?page=${users_pages}&limit=${users_limits}&query=${users_querys}`;
 
     if (!localStorage.token) {
       window.location.href = 'login.html';
@@ -507,13 +510,13 @@ if (show_timeline) {
           return response.json();
         });
     };
-    const sendtimeline = () => {
-      users_timeline('GET', MY_url)
-        .then(json => {
-          console.log(json)
-          let time = "";
-          json.forEach(element => {
-            time += `<div class="twitter__block">
+    // const sendtimeline = () => {
+    users_timeline('GET', MY_url)
+      .then(json => {
+        console.log(json)
+        let time = "";
+        json.forEach(element => {
+          time += `<div class="twitter__block">
         <figure>
             <img src="./img/ryusei.jpg" />
         </figure>
@@ -530,9 +533,132 @@ if (show_timeline) {
             </div>
         </div>
     </div>`;
+        });
+        let hd = document.getElementById('timeline');
+        hd.insertAdjacentHTML('beforeend', time);
+        console.log(json.stringify);
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+    // };
+    // const get_data = document.getElementById('timeline_submit')
+    // if (get_data) {
+    //   get_data.addEventListener('click', sendtimeline);
+    // }
+  });
+}
+//チャットルームの実装
+const show_chat = document.getElementById('chatbtn')
+if (show_chat) {
+  show_chat.addEventListener("click", (event) => {
+    event.preventDefault();
+    const chatrequest = (method, url, data) => {
+      return fetch(url, {
+        method: method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      }).then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json().then(errResData => {
+            const error = new Error('Something went wrong!');
+            error.data = errResData;
+            throw error;
           });
-          let hd = document.getElementById('timeline');
-          hd.insertAdjacentHTML('beforeend', time);
+        }
+        return response.json();
+      });
+    };
+    console.log(localStorage.token)
+    const chat_name = document.getElementById('chattitle').value
+    const sendchatrequest = () => {
+      chatrequest('POST', 'https://teachapi.herokuapp.com/chatrooms', {
+          "chatroom_params": {
+            "name": chat_name
+          }
+        })
+        .then(json => {
+          console.log(json)
+          const chat_time = `<div id="title" class="line__title">
+        <a href="chat.html"> ${json.name}</a>
+        </div> `;
+          const chatroom_posts = document.getElementById('chat_Btn');
+          chatroom_posts.insertAdjacentHTML('beforeend', chat_time);
+          window.location.href = 'all_chatroom.html';
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    const chatBtn = document.getElementById('chatbtn')
+    if (chatBtn) {
+      chatBtn.addEventListener('click', sendchatrequest);
+    }
+  });
+}
+//チャットルームの一覧の作成
+const show_chatroom = document.getElementById('Chatbtn')
+console.log(show_chatroom)
+if (show_chatroom) {
+  show_chatroom.addEventListener("click", (event) => {
+    event.preventDefault();
+    const chat_pages = document.getElementById('chat_page').value;
+    const chat_limits = document.getElementById('chat_limit').value;
+    const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
+    console.log(chat_url)
+    if (!localStorage.token) {
+      window.location.href = 'login.html';
+    }
+    const users_chatname = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const sendchatroom = () => {
+      users_chatname('GET', chat_url)
+        .then(json => {
+          console.log(json)
+          let chatime = "";
+          json.forEach(element => {
+            chatime += `<div class="col-lg-4">
+            <div class="card">
+              <img class="card-img-top" src="./img/ozi.jpg" alt="ライトコースのイメージ画像">
+              <div class="card-body">
+                <h4 class="card-title">${element.name}</h4>
+                <a href="chat.html" class="btn btn-primary">👨‍❤️‍👨${element.id}番👨‍❤️‍👨</a>
+              </div>
+            </div>
+          </div> `;
+          });
+          let chahd = document.getElementById('row');
+          chahd.insertAdjacentHTML('beforeend', chatime);
           console.log(json.stringify);
         })
         .then(responseData => {
@@ -542,9 +668,365 @@ if (show_timeline) {
           console.log(err, err.data);
         });
     };
-    const get_data = document.getElementById('timeline_submit')
-    if (get_data) {
-      get_data.addEventListener('click', sendtimeline);
+    const get_room = document.getElementById('Chatbtn')
+    if (get_room) {
+      get_room.addEventListener('click', sendchatroom);
     }
   });
+}
+//他人のチャットルームに参加する。
+const show_chatroomids = document.getElementById('catrooms_btn')
+console.log(show_chatroom)
+if (show_chatroomids) {
+  show_chatroomids.addEventListener("click", (event) => {
+    event.preventDefault();
+    const caht_Ids = document.getElementById('chat_ids').value;
+    const chat_idsurl = `https://teachapi.herokuapp.com/chatrooms/${caht_Ids}/join`;
+
+    const users_chatnameids = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const sendchatroomids = () => {
+      users_chatnameids('POST', chat_idsurl)
+        .then(json => {
+          alert('参加しました');
+          window.location.href = 'chat.html';
+          console.log(json)
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    const get_roomids = document.getElementById('catrooms_btn')
+    if (get_roomids) {
+      get_roomids.addEventListener('click', sendchatroomids);
+    }
+  });
+}
+//チャットないでメッセージを送る。
+const show_chaids = document.getElementById('chatSubmit')
+const get_roomstext = document.getElementById('chatSubmit')
+if (show_chaids) {
+  show_chaids.addEventListener("click", (event) => {
+    event.preventDefault();
+    const users_chattext = (method, url, data) => {
+      return fetch(url, {
+          method: method,
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const cahts_Ids = document.getElementById('getid').value;
+    const chat_textsurl = `https://teachapi.herokuapp.com/chatrooms/${cahts_Ids}/messages`;
+    const chat_text = document.getElementById('messagecontent').value;
+    const sendchatroomtext = () => {
+      users_chattext('POST', chat_textsurl, {
+          "message_params": {
+            "text": chat_text
+          }
+        })
+        .then(json => {
+          console.log(json);
+          const chat_linetime = `<div class="line__right">
+          <div class="text">${json.text}</div>
+          <span class="date">既読<br>0:30</span>
+        </div>`
+          const chatroom_chatposts = document.getElementById('chtat_line');
+          chatroom_chatposts.insertAdjacentHTML('beforeend', chat_linetime);
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    if (get_roomstext) {
+      get_roomstext.addEventListener('click', sendchatroomtext);
+    }
+  });
+}
+//チャット内でのメッセージの取得
+if (show_chaids) {
+  show_chaids.addEventListener("click", (event) => {
+    event.preventDefault();
+    const users_chatgettext = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const params = {
+      id: '150'
+    }
+    const qs = new URLSearchParams(params);
+
+    // const cahts_getI = document.getElementById('getd').value;
+    const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getChatRoomId}/messages?${qs}`;
+    const sendchatroomgettext = () => {
+      users_chatgettext('GET', chat_textsgeturl)
+        .then(json => {
+          console.log(json);
+          let chatgets = "";
+          json.forEach(element => {
+            chatgets += `<div id="line_line"> 
+            <figure>
+            <img src="./img/ryusei.jpg" />
+          </figure>
+          <div class="line__left-text">
+            <div class="name">${element.user.name}</div>
+            <div class="text">${element.text}</div>
+          </div></div>`;
+          });
+          let chahdget = document.getElementById('line__left');
+          chahdget.insertAdjacentHTML('beforeend', chatgets);
+          console.log(json.stringify);
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+    if (get_roomstext) {
+      get_roomstext.addEventListener('click', sendchatroomgettext);
+    }
+  });
+}
+//フォロー機能
+const post_dofollw = document.getElementById('post-following')
+if (post_dofollw) {
+  post_dofollw.addEventListener("click", (event) => {
+    event.preventDefault();
+    const foloowgets = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const cahts_getfollow = document.getElementById('getsfollow').value;
+    const chat_folowgeturl = `https://teachapi.herokuapp.com/users/${cahts_getfollow}/follow`;
+    const getsfollower = () => {
+      foloowgets('POST', chat_folowgeturl)
+        .then(json => {
+          alert(json.id + "番をフォローしました。");
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+
+    if (post_dofollw) {
+      post_dofollw.addEventListener('click', getsfollower);
+    }
+  });
+}
+//フォローを外す
+const post_unfollw = document.getElementById('post-unfollowing')
+if (post_unfollw) {
+  post_unfollw.addEventListener("click", (event) => {
+    event.preventDefault();
+    const unfoloowgets = (method, url) => {
+      return fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            // !response.ok
+            return response.json()
+              .then(errResData => {
+                const error = new Error('Something went wrong!');
+                error.data = errResData;
+                throw error;
+              });
+          }
+          return response.json();
+        });
+    };
+    const cahts_unfollow = document.getElementById('unfollow').value;
+    const chat_unfolowgeturl = `https://teachapi.herokuapp.com/users/${cahts_unfollow}/follow`;
+    const unfollower = () => {
+      unfoloowgets('DELETE', chat_unfolowgeturl)
+        .then(json => {
+          alert(json.id + "番をアンフォローしました。");
+        })
+        .then(responseData => {
+          console.log(responseData);
+        })
+        .catch(err => {
+          console.log(err, err.data);
+        });
+    };
+
+    if (post_unfollw) {
+      post_unfollw.addEventListener('click', unfollower);
+    }
+  });
+}
+// フォロ一覧を取得する
+const nowfoloow = (method, url) => {
+  return fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => {
+      if (response.status >= 400) {
+        // !response.ok
+        return response.json()
+          .then(errResData => {
+            const error = new Error('Something went wrong!');
+            error.data = errResData;
+            throw error;
+          });
+      }
+      return response.json();
+    });
+};
+const chat_nowfolowgeturl = `https://teachapi.herokuapp.com/users/${getId}/followings`;
+const nowfollowe = () => {
+  nowfoloow('GET', chat_nowfolowgeturl)
+    .then(json => {
+      console.log(json)
+      let marimgkup = "";
+      json.forEach(element => {
+        marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">${element.name}</h5>
+               <p class="acount">＠${element.id}</p>
+              <p class="card-text">${element.bio}</p>
+            </div>
+          </div>
+        </div>`;
+      });
+      let hed = document.getElementById('urs');
+      hed.insertAdjacentHTML('beforeend', marimgkup);
+      console.log(json.stringify);
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
+};
+const nowfolowinguser = document.getElementById('post-lgtbtnfollowing')
+if (nowfolowinguser) {
+  nowfolowinguser.addEventListener('click', nowfollowe);
+}
+
+// フォロワー覧を取得する
+const nowfoloower= (method, url) => {
+  return fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => {
+      if (response.status >= 400) {
+        // !response.ok
+        return response.json()
+          .then(errResData => {
+            const error = new Error('Something went wrong!');
+            error.data = errResData;
+            throw error;
+          });
+      }
+      return response.json();
+    });
+};
+const chat_nowfolower = `https://teachapi.herokuapp.com/users/${getId}/followers`;
+const nowfolloweer = () => {
+  nowfoloower('GET', chat_nowfolower)
+    .then(json => {
+      console.log(json)
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
+};
+const nowfoloweruser = document.getElementById('post-lgtbtnfollower')
+if (nowfoloweruser) {
+  nowfoloweruser.addEventListener('click', nowfolloweer);
 }

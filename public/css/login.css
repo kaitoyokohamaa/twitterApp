@@ -4,7 +4,6 @@ body{
    
    *{
        font-family: 'Raleway', sans-serif;
-       color : #FFF;
        
    }
    
@@ -185,7 +184,4 @@ p.card-text {
     color: #2B2B2B;
 }
 
-input{
-    background-color: black;
-  }
   
