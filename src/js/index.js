@@ -1,3 +1,4 @@
+//新規登録に必要な変数。
 import {
   postBtn,
   user_name,
@@ -8,40 +9,36 @@ import {
   postlgBtn,
   user_maillg
 } from './models/userlogin';
-const getId = window.localStorage.getItem('id');
-const getChatRoomId = window.localStorage.getItem('chatRoomId');
-console.log(getChatRoomId)
-const sendHttpRequest = (method, url, data) => {
-  return fetch(url, {
-    method: method,
-    body: JSON.stringify(data),
-    headers: data ? {
-      'Content-Type': 'application/json'
-    } : {}
-  }).then(response => {
-    if (response.status >= 400) {
-      // !response.ok
-      return response.json().then(errResData => {
-        const error = new Error('Something went wrong!');
-        error.data = errResData;
-        throw error;
-      });
-    }
-    return response.json();
-  });
-};
+//新規登録に必要な変数。
+//ローカルストレージ関連
+const myID = localStorage.getItem('id');
+//使うURL達
+const url = 'https://teachapi.herokuapp.com/sign_up'
+const urlsign = 'https://teachapi.herokuapp.com/sign_in'
+const urls = 'https://teachapi.herokuapp.com/users';
+const urlfix = `https://teachapi.herokuapp.com/users/${myID}`;
+//新規登録
 const sendData = () => {
-  sendHttpRequest('POST', 'https://teachapi.herokuapp.com/sign_up', {
-      "sign_up_user_params": {
-        "name": user_name.value,
-        "bio": user_bio.value,
-        "email": user_mail.value,
-        "password": user_pass.value,
-        "password_confirmation": user_confirmpass.value
+  fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        "sign_up_user_params": {
+          "name": user_name.value,
+          "bio": user_bio.value,
+          "email": user_mail.value,
+          "password": user_pass.value,
+          "password_confirmation": user_confirmpass.value
+        }
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     })
+    .then(response => response.json())
     .then(json => {
       //ユーザ生成時に以下の情報をローカルストレージに入れる。
+      console.log(json)
       localStorage.token = json.token,
         localStorage.id = json.id,
         localStorage.name = json.name,
@@ -51,173 +48,117 @@ const sendData = () => {
     .then(responseData => {
       console.log(responseData);
     })
-
     .catch(err => {
       console.log(err, err.data);
     });
 };
-
 if (postBtn) {
   postBtn.addEventListener('click', sendData);
 }
-
-
 // ユーザーログイン
-const sendHttpRequestlg = (method, url, data) => {
-  return fetch(url, {
-    method: method,
-    body: JSON.stringify(data),
-    headers: data ? {
-      'Content-Type': 'application/json'
-    } : {}
-  }).then(response => {
-    if (response.status >= 400) {
-      // !response.ok
-      return response.json().then(errResData => {
-        const error = new Error('Something went wrong!');
-        error.data = errResData;
-        throw error;
-      });
-    }
-    return response.json();
-  });
-};
-const sendlgData = () => {
-  sendHttpRequestlg('POST', 'https://teachapi.herokuapp.com/sign_in', {
+if (postlgBtn) {
+  const sendlgData = () => {
+    const datasign = {
       "sign_in_user_params": {
         "email": user_maillg.value,
         "password": user_pass.value,
         "password_confirmation": user_confirmpass.value
       }
-    })
-    .then(json => {
-      localStorage.token = json.token,
-        localStorage.id = json.id,
-        localStorage.name = json.name,
-        localStorage.bio = json.bio
-      window.location.href = 'timeline.html';
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-
-    .catch(err => {
-      console.log(err, err.data);
-    });
-};
-if (postlgBtn) {
-  postlgBtn.addEventListener('click', sendlgData);
-}
-
-// ユーザー一覧
-const getinfo = document.getElementById('post-lgtbtn');
-
-const url = 'https://teachapi.herokuapp.com/users';
-
-if (!localStorage.token) {
-  window.location.href = 'login.html';
-}
-const sendHttpRequestlgt = (method, url) => {
-  return fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.token
-      }
-    })
-    .then(response => {
-      if (response.status >= 400) {
-        // !response.ok
-        return response.json()
-          .then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-      }
-      return response.json();
-    });
-};
-const sendlgdData = () => {
-  sendHttpRequestlgt('GET', url)
-    .then(json => {
-      let markup = "";
-      json.forEach(element => {
-        markup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">${element.name}</h5>
-           <p class="acount">＠${element.id}</p>
-          <p class="card-text">${element.bio}</p>
-          <p class="card-text"><a href="fix.html">ユーザー編集</a></p>
-        </div>
-      </div>
-    </div>`;
+    }
+    fetch(urlsign, {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datasign)
+      })
+      .then(response => response.json())
+      .then(json => {
+        //ユーザ生成時に以下の情報をローカルストレージに入れる。
+        localStorage.token = json.token,
+          localStorage.id = json.id,
+          localStorage.name = json.name,
+          localStorage.bio = json.bio
+        window.location.href = 'timeline.html';
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-      let h = document.getElementById('userrs');
-      h.insertAdjacentHTML('beforeend', markup);
-      console.log(json.stringify);
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-    .catch(err => {
-      console.log(err, err.data);
-    });
-};
-if (getinfo) {
-  getinfo.addEventListener('click', sendlgdData);
+  };
+  if (postlgBtn) {
+    postlgBtn.addEventListener('click', sendlgData);
+  }
 }
-// ユーザー編集
-const sendHttpRequestlge = (method, url, data) => {
-  return fetch(url, {
-    method: method,
-    body: JSON.stringify(data),
+//ローカルストレージ関連
+const getId = window.localStorage.getItem('id');
+//ローカルストレージ関連
+// ユーザー一覧
+fetch(urls, {
+    method: "GET",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + localStorage.token
-    }
-  }).then(response => {
-    if (response.status >= 400) {
-      // !response.ok
-      return response.json().then(errResData => {
-        const error = new Error('Something went wrong!');
-        error.data = errResData;
-        throw error;
-      });
-    }
-    return response.json();
+    },
+  })
+  .then(response => response.json())
+  .then(json => {
+    let markup = "";
+    json.forEach(element => {
+      markup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">${element.name}</h5>
+             <p class="acount">＠${element.id}</p>
+            <p class="card-text">${element.bio}</p>
+            <p class="card-text"><a href="fix.html">ユーザー編集</a></p>
+          </div>
+        </div>
+      </div>`;
+    });
+    let h = document.getElementById('userrs');
+    h.insertAdjacentHTML('beforeend', markup);
+  })
+  .then(responseData => {
+    console.log(responseData);
+  })
+  .catch(err => {
+    console.log(err, err.data);
   });
-};
-const myID = localStorage.getItem('id');
-console.log(myID)
-const newurl = `https://teachapi.herokuapp.com/users/${myID}`
-console.log(newurl)
-
-const jsendlgDatas = () => {
-  sendHttpRequestlge('PUT', newurl, {
+// ユーザー編集
+const usersfix = () => {
+fetch(urlfix, {
+    method: "PUT",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.token
+    },
+    body: JSON.stringify({
       "user_params": {
         "name": document.getElementById('rename').value,
         "bio": document.getElementById('rebio').value,
       }
     })
-    .then(json => {
-      localStorage.name = json.name,
-        localStorage.bio = json.bio
-      window.location.href = 'user.html';
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-
-    .catch(err => {
-      console.log(err, err.data);
-    });
-};
-const popo = document.getElementById('post-lgtbtnr')
-if (popo) {
-  popo.addEventListener('click', jsendlgDatas);
+  })
+  .then(response => response.json())
+  .then(json => {
+    localStorage.name = json.name,
+      localStorage.bio = json.bio
+    window.location.href = 'user.html';
+  })
+  .then(responseData => {
+    console.log(responseData);
+  })
+  .catch(err => {
+    console.log(err, err.data);
+  });
 }
-
+const refix = document.getElementById('post-lgtbtnr')
+if (refix) {
+  refix.addEventListener('click', usersfix);
+}
 //アカウントの削除
 const sendHttpRequesdtlge = (method, url, data) => {
   return fetch(url, {
@@ -245,7 +186,8 @@ const jsendlgDatasc = () => {
     .then(json => {
       localStorage.name = json.name,
         localStorage.bio = json.bio
-      window.location.href = 'user.html';
+      alert("アカウントを削除しました")
+      window.location.href = 'title.html';
     })
     .then(responseData => {
       console.log(responseData);
@@ -305,38 +247,36 @@ if (postbttn) {
 }
 // ユーザーのタイムライン
 const MYurl = `https://teachapi.herokuapp.com/users/${myID}/timeline`;
-
-if (!localStorage.token) {
-  window.location.href = 'login.html';
-}
-const sendHttpRequesftlgt = (method, url) => {
-  return fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.token
-      }
-    })
-    .then(response => {
-      if (response.status >= 400) {
-        // !response.ok
-        return response.json()
-          .then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-      }
-      return response.json();
-    });
-};
-const senddlgdData = () => {
-  sendHttpRequesftlgt('GET', MYurl)
-    .then(json => {
-      console.log(json)
-      let markuped = "";
-      json.forEach(element => {
-        markuped += `<div class="twitter__block">
+const timelinelogo = document.getElementById('logo')
+if (timelinelogo) {
+  const sendHttpRequesftlgt = (method, url) => {
+    return fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json()
+            .then(errResData => {
+              const error = new Error('Something went wrong!');
+              error.data = errResData;
+              throw error;
+            });
+        }
+        return response.json();
+      });
+  };
+  const senddlgdData = () => {
+    sendHttpRequesftlgt('GET', MYurl)
+      .then(json => {
+        console.log(json)
+        let markuped = "";
+        json.forEach(element => {
+          markuped += `<div class="twitter__block">
       <figure>
           <img src="./img/ryusei.jpg" />
       </figure>
@@ -353,20 +293,18 @@ const senddlgdData = () => {
           </div>
       </div>
   </div>`;
+        });
+        let hd = document.getElementById('timeline');
+        hd.insertAdjacentHTML('beforeend', markuped);
+        console.log(json.stringify);
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-      let hd = document.getElementById('timeline');
-      hd.insertAdjacentHTML('beforeend', markuped);
-      console.log(json.stringify);
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-    .catch(err => {
-      console.log(err, err.data);
-    });
-};
-const timelinelogo = document.getElementById('logo')
-if (timelinelogo) {
+  };
   timelinelogo.addEventListener('click', senddlgdData);
 }
 //投稿編集
@@ -475,48 +413,46 @@ if (postdel) {
   });
 }
 //タイムラインのページを取得する。
-const show_timeline = document.getElementById('timeline_submit')
-if (show_timeline) {
-  show_timeline.addEventListener("click", (event) => {
-    event.preventDefault();
-    const users_pages = document.getElementById('pages').value;
-    const users_limits = document.getElementById('limits').value;
-    const users_querys = document.getElementById('querys').value;
+// const show_timeline = document.getElementById('timeline_submit')
+// if (show_timeline) {
+//   show_timeline.addEventListener("click", (event) => {
+//     event.preventDefault();
+//     // const users_pages = document.getElementById('pages').value;
+//     // const users_limits = document.getElementById('limits').value;
+//     // const users_querys = document.getElementById('querys').value;
+//     // page=${users_pages}&limit=${users_limits}&query=${users_querys}
 
-
-    const MY_url = `https://teachapi.herokuapp.com/posts?page=${users_pages}&limit=${users_limits}&query=${users_querys}`;
-
-    if (!localStorage.token) {
-      window.location.href = 'login.html';
-    }
-    const users_timeline = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    // const sendtimeline = () => {
-    users_timeline('GET', MY_url)
-      .then(json => {
-        console.log(json)
-        let time = "";
-        json.forEach(element => {
-          time += `<div class="twitter__block">
+const MY_url = `https://teachapi.herokuapp.com/posts`;
+const get_data = document.getElementById('timeline')
+if (get_data) {
+  const users_timeline = (method, url) => {
+    return fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json()
+            .then(errResData => {
+              const error = new Error('Something went wrong!');
+              error.data = errResData;
+              throw error;
+            });
+        }
+        return response.json();
+      });
+  };
+  // const sendtimeline = () => {
+  users_timeline('GET', MY_url)
+    .then(json => {
+      console.log(json)
+      let time = "";
+      json.forEach(element => {
+        time += `<div class="twitter__block">
         <figure>
             <img src="./img/ryusei.jpg" />
         </figure>
@@ -533,24 +469,24 @@ if (show_timeline) {
             </div>
         </div>
     </div>`;
-        });
-        let hd = document.getElementById('timeline');
-        hd.insertAdjacentHTML('beforeend', time);
-        console.log(json.stringify);
-      })
-      .then(responseData => {
-        console.log(responseData);
-      })
-      .catch(err => {
-        console.log(err, err.data);
       });
-    // };
-    // const get_data = document.getElementById('timeline_submit')
-    // if (get_data) {
-    //   get_data.addEventListener('click', sendtimeline);
-    // }
-  });
+      let hd = document.getElementById('timeline');
+      hd.insertAdjacentHTML('beforeend', time);
+      console.log(json.stringify);
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
 }
+// };
+// const get_data = document.getElementById('timeline_submit')
+// if (get_data) {
+//   get_data.addEventListener('click', sendtimeline);
+// }
+
 //チャットルームの実装
 const show_chat = document.getElementById('chatbtn')
 if (show_chat) {
@@ -617,9 +553,7 @@ if (show_chatroom) {
     const chat_limits = document.getElementById('chat_limit').value;
     const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
     console.log(chat_url)
-    if (!localStorage.token) {
-      window.location.href = 'login.html';
-    }
+
     const users_chatname = (method, url) => {
       return fetch(url, {
           method: method,
@@ -674,6 +608,7 @@ if (show_chatroom) {
     }
   });
 }
+
 //他人のチャットルームに参加する。
 const show_chatroomids = document.getElementById('catrooms_btn')
 console.log(show_chatroom)
@@ -763,6 +698,8 @@ if (show_chaids) {
         })
         .then(json => {
           console.log(json);
+          const mychat = localStorage.chatroom_id = json.chatroom_id
+          console.log(mychat)
           const chat_linetime = `<div class="line__right">
           <div class="text">${json.text}</div>
           <span class="date">既読<br>0:30</span>
@@ -782,6 +719,8 @@ if (show_chaids) {
     }
   });
 }
+const getchstid = localStorage.getItem('chatroom_id')
+console.log(getchstid)
 //チャット内でのメッセージの取得
 if (show_chaids) {
   show_chaids.addEventListener("click", (event) => {
@@ -813,7 +752,7 @@ if (show_chaids) {
     const qs = new URLSearchParams(params);
 
     // const cahts_getI = document.getElementById('getd').value;
-    const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getChatRoomId}/messages?${qs}`;
+    const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getchstid}/messages?${qs}`;
     const sendchatroomgettext = () => {
       users_chatgettext('GET', chat_textsgeturl)
         .then(json => {
@@ -846,7 +785,7 @@ if (show_chaids) {
   });
 }
 //フォロー機能
-const post_dofollw = document.getElementById('post-following')
+const post_dofollw = document.getElementById('getting')
 if (post_dofollw) {
   post_dofollw.addEventListener("click", (event) => {
     event.preventDefault();
@@ -871,7 +810,7 @@ if (post_dofollw) {
           return response.json();
         });
     };
-    const cahts_getfollow = document.getElementById('getsfollow').value;
+    const cahts_getfollow = document.getElementById('post_dofollw').value;
     const chat_folowgeturl = `https://teachapi.herokuapp.com/users/${cahts_getfollow}/follow`;
     const getsfollower = () => {
       foloowgets('POST', chat_folowgeturl)
@@ -885,9 +824,9 @@ if (post_dofollw) {
           console.log(err, err.data);
         });
     };
-
-    if (post_dofollw) {
-      post_dofollw.addEventListener('click', getsfollower);
+    const post_doingfollw = document.getElementById('getting')
+    if (post_doingfollw) {
+      post_doingfollw.addEventListener('click', getsfollower);
     }
   });
 }
@@ -960,13 +899,70 @@ const nowfoloow = (method, url) => {
     });
 };
 const chat_nowfolowgeturl = `https://teachapi.herokuapp.com/users/${getId}/followings`;
-const nowfollowe = () => {
-  nowfoloow('GET', chat_nowfolowgeturl)
+
+nowfoloow('GET', chat_nowfolowgeturl)
+  .then(json => {
+    console.log(json)
+    let marimgkup = "";
+    json.forEach(element => {
+      marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">${element.name}</h5>
+               <p class="acount">＠${element.id}</p>
+              <p class="card-text">${element.bio}</p>
+            </div>
+          </div>
+        </div>`;
+    });
+    let hed = document.getElementById('urs');
+    hed.insertAdjacentHTML('beforeend', marimgkup);
+    if (json.length = 0) {
+      alert("まだ誰もフォローしていません")
+    }
+    console.log(json.stringify);
+  })
+  .then(responseData => {
+    console.log(responseData);
+  })
+  .catch(err => {
+    console.log(err, err.data);
+  });
+const nowfolowinguser = document.getElementById('post-lgtbtnfollowing')
+if (nowfolowinguser) {
+  nowfolowinguser.addEventListener('click', nowfollowe);
+}
+
+// フォロワー覧を取得する
+const my_folower = document.getElementById('urss')
+if (my_folower) {
+  const nowfoloower = (method, url) => {
+    return fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => {
+        if (response.status >= 400) {
+          // !response.ok
+          return response.json()
+            .then(errResData => {
+              const error = new Error('Something went wrong!');
+              error.data = errResData;
+              throw error;
+            });
+        }
+        return response.json();
+      });
+  };
+  const chat_nowfolower = `https://teachapi.herokuapp.com/users/${getId}/followers`;
+
+  nowfoloower('GET', chat_nowfolower)
     .then(json => {
-      console.log(json)
-      let marimgkup = "";
+      let myfower = "";
       json.forEach(element => {
-        marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+        myfower += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">${element.name}</h5>
                <p class="acount">＠${element.id}</p>
@@ -975,8 +971,11 @@ const nowfollowe = () => {
           </div>
         </div>`;
       });
-      let hed = document.getElementById('urs');
-      hed.insertAdjacentHTML('beforeend', marimgkup);
+      let hede = document.getElementById('urss');
+      hede.insertAdjacentHTML('beforeend', myfower);
+      if (json.length = 0) {
+        alert("まだ誰もフォロワーはいません")
+      }
       console.log(json.stringify);
     })
     .then(responseData => {
@@ -985,48 +984,14 @@ const nowfollowe = () => {
     .catch(err => {
       console.log(err, err.data);
     });
-};
-const nowfolowinguser = document.getElementById('post-lgtbtnfollowing')
-if (nowfolowinguser) {
-  nowfolowinguser.addEventListener('click', nowfollowe);
 }
-
-// フォロワー覧を取得する
-const nowfoloower= (method, url) => {
-  return fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.token
-      }
-    })
-    .then(response => {
-      if (response.status >= 400) {
-        // !response.ok
-        return response.json()
-          .then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-      }
-      return response.json();
-    });
-};
-const chat_nowfolower = `https://teachapi.herokuapp.com/users/${getId}/followers`;
-const nowfolloweer = () => {
-  nowfoloower('GET', chat_nowfolower)
-    .then(json => {
-      console.log(json)
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-    .catch(err => {
-      console.log(err, err.data);
-    });
-};
-const nowfoloweruser = document.getElementById('post-lgtbtnfollower')
-if (nowfoloweruser) {
-  nowfoloweruser.addEventListener('click', nowfolloweer);
+//ログアウト
+const mylogout = document.getElementById('post-logout')
+if (mylogout) {
+  mylogout.addEventListener("click", (e) => {
+    e.preventDefault()
+    window.localStorage.clear();
+    alert("ログアウトします。")
+    window.location.href = 'title.html';
+  })
 }
