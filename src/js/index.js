@@ -12,6 +12,7 @@ import {
 //新規登録に必要な変数。
 //ローカルストレージ関連
 const myID = localStorage.getItem('id');
+const getchstid = localStorage.getItem('chatroom_id')
 //使うURL達
 const url = 'https://teachapi.herokuapp.com/sign_up';
 const urlsign = 'https://teachapi.herokuapp.com/sign_in';
@@ -20,6 +21,8 @@ const urlfix = `https://teachapi.herokuapp.com/users/${myID}`;
 const posurl = `https://teachapi.herokuapp.com/posts`;
 const urltimeline = `https://teachapi.herokuapp.com/users/${myID}/timeline`;
 const chatroomurl = 'https://teachapi.herokuapp.com/chatrooms';
+const chatfollwer = `https://teachapi.herokuapp.com/users/${myID}/followings`;
+const chat_nowfolower = `https://teachapi.herokuapp.com/users/${myID}/followers`;
 //新規登録
 const sendData = () => {
   fetch(url, {
@@ -97,9 +100,6 @@ if (postlgBtn) {
     postlgBtn.addEventListener('click', sendlgData);
   }
 }
-//ローカルストレージ関連
-const getId = window.localStorage.getItem('id');
-//ローカルストレージ関連
 // ユーザー一覧
 fetch(urls, {
     method: "GET",
@@ -417,25 +417,25 @@ if (show_chat) {
 //チャットルームの一覧の作成
 const show_mychatroom = document.getElementById('Chatbtn')
 if (show_mychatroom) {
-  //特例にURL設置
-  const chat_pages = document.getElementById('chat_page').value;
-  const chat_limits = document.getElementById('chat_limit').value;
-  const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
-  //特例にURL設置
-  const chatroomshow=()=>{
-  fetch(chat_url, {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.token
-      }
-    })
-    .then(response => response.json())
-    .then(json => {
-      console.log(json)
-      let chatime = "";
-      json.forEach(element => {
-        chatime += `<div class="col-lg-4">
+  const chatroomshow = () => {
+    //特例にURL設置
+    const chat_pages = document.getElementById('chat_page').value;
+    const chat_limits = document.getElementById('chat_limit').value;
+    const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
+    //特例にURL設置
+    fetch(chat_url, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        let chatime = "";
+        json.forEach(element => {
+          chatime += `<div class="col-lg-4">
         <div class="card">
           <img class="card-img-top" src="./img/ozi.jpg" alt="ライトコースのイメージ画像">
           <div class="card-body">
@@ -444,386 +444,124 @@ if (show_mychatroom) {
           </div>
         </div>
       </div> `;
+        });
+        let chatroompage = document.getElementById('row');
+        chatroompage.insertAdjacentHTML('beforeend', chatime);
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-      let chatroompage = document.getElementById('row');
-      chatroompage.insertAdjacentHTML('beforeend', chatime);
-    })
-    .then(responseData => {
-      console.log(responseData);
-    })
-    .catch(err => {
-      console.log(err, err.data);
-    });
   }
-  show_mychatroom.addEventListener('click',chatroomshow)
+  show_mychatroom.addEventListener('click', chatroomshow)
 }
-
 //他人のチャットルームに参加する。
 const show_chatroomids = document.getElementById('catrooms_btn')
 if (show_chatroomids) {
-  show_chatroomids.addEventListener("click", (event) => {
-    event.preventDefault();
+  const chatroomjoin = () => {
+    //特例にURL設置
     const caht_Ids = document.getElementById('chat_ids').value;
     const chat_idsurl = `https://teachapi.herokuapp.com/chatrooms/${caht_Ids}/join`;
-
-    const users_chatnameids = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const sendchatroomids = () => {
-      users_chatnameids('POST', chat_idsurl)
-        .then(json => {
-          alert('参加しました');
-          window.location.href = 'chat.html';
-          console.log(json)
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const get_roomids = document.getElementById('catrooms_btn')
-    if (get_roomids) {
-      get_roomids.addEventListener('click', sendchatroomids);
-    }
-  });
-}
-//チャットないでメッセージを送る。
-const show_chaids = document.getElementById('chatSubmit')
-const get_roomstext = document.getElementById('chatSubmit')
-if (show_chaids) {
-  show_chaids.addEventListener("click", (event) => {
-    event.preventDefault();
-    const users_chattext = (method, url, data) => {
-      return fetch(url, {
-          method: method,
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const cahts_Ids = document.getElementById('getid').value;
-    const chat_textsurl = `https://teachapi.herokuapp.com/chatrooms/${cahts_Ids}/messages`;
-    const chat_text = document.getElementById('messagecontent').value;
-    const sendchatroomtext = () => {
-      users_chattext('POST', chat_textsurl, {
-          "message_params": {
-            "text": chat_text
-          }
-        })
-        .then(json => {
-          console.log(json);
-          const mychat = localStorage.chatroom_id = json.chatroom_id
-          console.log(mychat)
-          const chat_linetime = `<div class="line__right">
-          <div class="text">${json.text}</div>
-          <span class="date">既読<br>0:30</span>
-        </div>`
-          const chatroom_chatposts = document.getElementById('chtat_line');
-          chatroom_chatposts.insertAdjacentHTML('beforeend', chat_linetime);
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    if (get_roomstext) {
-      get_roomstext.addEventListener('click', sendchatroomtext);
-    }
-  });
-}
-const getchstid = localStorage.getItem('chatroom_id')
-console.log(getchstid)
-//チャット内でのメッセージの取得
-if (show_chaids) {
-  show_chaids.addEventListener("click", (event) => {
-    event.preventDefault();
-    const users_chatgettext = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const params = {
-      id: '150'
-    }
-    const qs = new URLSearchParams(params);
-
-    // const cahts_getI = document.getElementById('getd').value;
-    const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getchstid}/messages?${qs}`;
-    const sendchatroomgettext = () => {
-      users_chatgettext('GET', chat_textsgeturl)
-        .then(json => {
-          console.log(json);
-          let chatgets = "";
-          json.forEach(element => {
-            chatgets += `<div id="line_line"> 
-            <figure>
-            <img src="./img/ryusei.jpg" />
-          </figure>
-          <div class="line__left-text">
-            <div class="name">${element.user.name}</div>
-            <div class="text">${element.text}</div>
-          </div></div>`;
-          });
-          let chahdget = document.getElementById('line__left');
-          chahdget.insertAdjacentHTML('beforeend', chatgets);
-          console.log(json.stringify);
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    if (get_roomstext) {
-      get_roomstext.addEventListener('click', sendchatroomgettext);
-    }
-  });
-}
-//フォロー機能
-const post_dofollw = document.getElementById('getting')
-if (post_dofollw) {
-  post_dofollw.addEventListener("click", (event) => {
-    event.preventDefault();
-    const foloowgets = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const cahts_getfollow = document.getElementById('post_dofollw').value;
-    const chat_folowgeturl = `https://teachapi.herokuapp.com/users/${cahts_getfollow}/follow`;
-    const getsfollower = () => {
-      foloowgets('POST', chat_folowgeturl)
-        .then(json => {
-          alert(json.id + "番をフォローしました。");
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const post_doingfollw = document.getElementById('getting')
-    if (post_doingfollw) {
-      post_doingfollw.addEventListener('click', getsfollower);
-    }
-  });
-}
-//フォローを外す
-const post_unfollw = document.getElementById('post-unfollowing')
-if (post_unfollw) {
-  post_unfollw.addEventListener("click", (event) => {
-    event.preventDefault();
-    const unfoloowgets = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const cahts_unfollow = document.getElementById('unfollow').value;
-    const chat_unfolowgeturl = `https://teachapi.herokuapp.com/users/${cahts_unfollow}/follow`;
-    const unfollower = () => {
-      unfoloowgets('DELETE', chat_unfolowgeturl)
-        .then(json => {
-          alert(json.id + "番をアンフォローしました。");
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-
-    if (post_unfollw) {
-      post_unfollw.addEventListener('click', unfollower);
-    }
-  });
-}
-// フォロ一覧を取得する
-const nowfoloow = (method, url) => {
-  return fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.token
-      }
-    })
-    .then(response => {
-      if (response.status >= 400) {
-        // !response.ok
-        return response.json()
-          .then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-      }
-      return response.json();
-    });
-};
-const chat_nowfolowgeturl = `https://teachapi.herokuapp.com/users/${getId}/followings`;
-
-nowfoloow('GET', chat_nowfolowgeturl)
-  .then(json => {
-    console.log(json)
-    let marimgkup = "";
-    json.forEach(element => {
-      marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">${element.name}</h5>
-               <p class="acount">＠${element.id}</p>
-              <p class="card-text">${element.bio}</p>
-            </div>
-          </div>
-        </div>`;
-    });
-    let hed = document.getElementById('urs');
-    hed.insertAdjacentHTML('beforeend', marimgkup);
-    if (json.length = 0) {
-      alert("まだ誰もフォローしていません")
-    }
-    console.log(json.stringify);
-  })
-  .then(responseData => {
-    console.log(responseData);
-  })
-  .catch(err => {
-    console.log(err, err.data);
-  });
-const nowfolowinguser = document.getElementById('post-lgtbtnfollowing')
-if (nowfolowinguser) {
-  nowfolowinguser.addEventListener('click', nowfollowe);
-}
-
-// フォロワー覧を取得する
-const my_folower = document.getElementById('urss')
-if (my_folower) {
-  const nowfoloower = (method, url) => {
-    return fetch(url, {
-        method: method,
+    //特例にURL設置
+    fetch(chat_idsurl, {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json()
-            .then(errResData => {
-              const error = new Error('Something went wrong!');
-              error.data = errResData;
-              throw error;
-            });
-        }
-        return response.json();
+      .then(response => response.json())
+      .then(json => {
+        alert('参加しました');
+        window.location.href = 'chat.html';
+        console.log(json)
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-  };
-  const chat_nowfolower = `https://teachapi.herokuapp.com/users/${getId}/followers`;
-
-  nowfoloower('GET', chat_nowfolower)
-    .then(json => {
-      let myfower = "";
-      json.forEach(element => {
-        myfower += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">${element.name}</h5>
-               <p class="acount">＠${element.id}</p>
-              <p class="card-text">${element.bio}</p>
-            </div>
-          </div>
-        </div>`;
+  }
+  show_chatroomids.addEventListener('click', chatroomjoin)
+}
+//チャットないでメッセージを送る。
+const get_roomstext = document.getElementById('chatSubmit')
+if (get_roomstext) {
+  const chatroomjoin = () => {
+    //特例にURL設置
+    const cahts_Ids = document.getElementById('getid').value;
+    const chat_textsurl = `https://teachapi.herokuapp.com/chatrooms/${cahts_Ids}/messages`;
+    const chat_text = document.getElementById('messagecontent').value;
+    //特例にURL設置
+    fetch(chat_textsurl, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        },
+        body: body.json.stringify({
+          "message_params": {
+            "text": chat_text
+          }
+        })
+      })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json);
+        const mychat = localStorage.chatroom_id = json.chatroom_id
+        console.log(mychat)
+        const chat_linetime = `<div class="line__right">
+        <div class="text">${json.text}</div>
+        <span class="date">既読<br>0:30</span>
+      </div>`
+        const chatroom_chatposts = document.getElementById('chtat_line');
+        chatroom_chatposts.insertAdjacentHTML('beforeend', chat_linetime);
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-      let hede = document.getElementById('urss');
-      hede.insertAdjacentHTML('beforeend', myfower);
-      if (json.length = 0) {
-        alert("まだ誰もフォロワーはいません")
+  }
+  get_roomstext.addEventListener('click', chatroomjoin)
+}
+//チャット内でのメッセージの取得
+const mychat = document.getElementById('getd')
+if (mychat) {
+  const params = {
+    id: '150'
+  }
+  //特例URL
+  const qs = new URLSearchParams(params);
+  const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getchstid}/messages?${qs}`;
+  //特例URL
+  fetch(chat_textsgeturl, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
       }
+    })
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      let chatgets = "";
+      json.forEach(element => {
+        chatgets += `<div id="line_line"> 
+      <figure>
+      <img src="./img/ryusei.jpg" />
+    </figure>
+    <div class="line__left-text">
+      <div class="name">${element.user.name}</div>
+      <div class="text">${element.text}</div>
+    </div></div>`;
+      });
+      let chahdget = document.getElementById('line__left');
+      chahdget.insertAdjacentHTML('beforeend', chatgets);
       console.log(json.stringify);
     })
     .then(responseData => {
@@ -832,6 +570,125 @@ if (my_folower) {
     .catch(err => {
       console.log(err, err.data);
     });
+}
+
+//フォロー機能
+const post_dofollw = document.getElementById('getting')
+if (post_dofollw) {
+  const mydollowing = () => {
+    const cahts_getfollow = document.getElementById('post_dofollw').value;
+    const chat_folowgeturl = `https://teachapi.herokuapp.com/users/${cahts_getfollow}/follow`;
+    fetch(chat_folowgeturl, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => response.json())
+      .then(json => {
+        alert(json.id + "番をフォローしました。");
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+  }
+  post_dofollw.addEventListener('click', mydollowing)
+}
+//フォローを外す
+const post_unfollwed = document.getElementById('post-unfollowing')
+if (post_unfollwed) {
+  const unfollower = () => {
+    const cahts_unfollow = document.getElementById('unfollow').value;
+    const chat_unfolowgeturl = `https://teachapi.herokuapp.com/users/${cahts_unfollow}/follow`;
+    fetch(chat_unfolowgeturl, {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => response.json())
+      .then(json => {
+        alert(json.id + "番をアンフォローしました。");
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+  }
+  post_unfollwed.addEventListener('click', unfollower);
+}
+// フォロ一覧を取得する
+const post_gwtfollw = document.getElementById('urs')
+if (post_gwtfollw) {
+    fetch(chat_nowfolower, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        }
+      })
+      .then(response => response.json())
+      .then(json => {
+        let marimgkup = "";
+        json.forEach(element => {
+          marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title">${element.name}</h5>
+                   <p class="acount">＠${element.id}</p>
+                  <p class="card-text">${element.bio}</p>
+                </div>
+              </div>
+            </div>`;
+        });
+        let hed = document.getElementById('urs');
+        hed.insertAdjacentHTML('beforeend', marimgkup);
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+  }
+// フォロワー覧を取得する
+const my_folower = document.getElementById('urss')
+if (my_folower) {
+  fetch(chatfollwer, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.token
+    }
+  })
+  .then(response => response.json())
+  .then(json => {
+    let myfower = "";
+    json.forEach(element => {
+      myfower += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">${element.name}</h5>
+             <p class="acount">＠${element.id}</p>
+            <p class="card-text">${element.bio}</p>
+          </div>
+        </div>
+      </div>`;
+    });
+    let hede = document.getElementById('urss');
+    hede.insertAdjacentHTML('beforeend', myfower);
+  })
+  .then(responseData => {
+    console.log(responseData);
+  })
+  .catch(err => {
+    console.log(err, err.data);
+  });
 }
 //ログアウト
 const mylogout = document.getElementById('post-logout')
