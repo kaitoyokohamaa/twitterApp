@@ -13,10 +13,13 @@ import {
 //ローカルストレージ関連
 const myID = localStorage.getItem('id');
 //使うURL達
-const url = 'https://teachapi.herokuapp.com/sign_up'
-const urlsign = 'https://teachapi.herokuapp.com/sign_in'
+const url = 'https://teachapi.herokuapp.com/sign_up';
+const urlsign = 'https://teachapi.herokuapp.com/sign_in';
 const urls = 'https://teachapi.herokuapp.com/users';
 const urlfix = `https://teachapi.herokuapp.com/users/${myID}`;
+const posurl = `https://teachapi.herokuapp.com/posts`;
+const urltimeline = `https://teachapi.herokuapp.com/users/${myID}/timeline`;
+const chatroomurl = 'https://teachapi.herokuapp.com/chatrooms';
 //新規登録
 const sendData = () => {
   fetch(url, {
@@ -55,6 +58,7 @@ const sendData = () => {
 if (postBtn) {
   postBtn.addEventListener('click', sendData);
 }
+
 // ユーザーログイン
 if (postlgBtn) {
   const sendlgData = () => {
@@ -118,8 +122,8 @@ fetch(urls, {
         </div>
       </div>`;
     });
-    let h = document.getElementById('userrs');
-    h.insertAdjacentHTML('beforeend', markup);
+    let users = document.getElementById('userrs');
+    users.insertAdjacentHTML('beforeend', markup);
   })
   .then(responseData => {
     console.log(responseData);
@@ -129,60 +133,46 @@ fetch(urls, {
   });
 // ユーザー編集
 const usersfix = () => {
-fetch(urlfix, {
-    method: "PUT",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.token
-    },
-    body: JSON.stringify({
-      "user_params": {
-        "name": document.getElementById('rename').value,
-        "bio": document.getElementById('rebio').value,
-      }
+  fetch(urlfix, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      },
+      body: JSON.stringify({
+        "user_params": {
+          "name": document.getElementById('rename').value,
+          "bio": document.getElementById('rebio').value,
+        }
+      })
     })
-  })
-  .then(response => response.json())
-  .then(json => {
-    localStorage.name = json.name,
-      localStorage.bio = json.bio
-    window.location.href = 'user.html';
-  })
-  .then(responseData => {
-    console.log(responseData);
-  })
-  .catch(err => {
-    console.log(err, err.data);
-  });
+    .then(response => response.json())
+    .then(json => {
+      localStorage.name = json.name,
+        localStorage.bio = json.bio
+      window.location.href = 'user.html';
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
 }
 const refix = document.getElementById('post-lgtbtnr')
 if (refix) {
   refix.addEventListener('click', usersfix);
 }
 //アカウントの削除
-const sendHttpRequesdtlge = (method, url, data) => {
-  return fetch(url, {
-    method: method,
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.token
-    }
-  }).then(response => {
-    if (response.status >= 400) {
-      // !response.ok
-      return response.json().then(errResData => {
-        const error = new Error('Something went wrong!');
-        error.data = errResData;
-        throw error;
-      });
-    }
-    return response.json();
-  });
-};
-
-const jsendlgDatasc = () => {
-  sendHttpRequesdtlge('DELETE', newurl, )
+const userdelete = () => {
+  fetch(urlfix, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => response.json())
     .then(json => {
       localStorage.name = json.name,
         localStorage.bio = json.bio
@@ -192,43 +182,29 @@ const jsendlgDatasc = () => {
     .then(responseData => {
       console.log(responseData);
     })
-
     .catch(err => {
       console.log(err, err.data);
     });
-};
-const poppoo = document.getElementById('post-lgldbtn')
-if (poppoo) {
-  poppoo.addEventListener('click', jsendlgDatasc);
+}
+const deleteusr = document.getElementById('post-lgldbtn')
+if (deleteusr) {
+  deleteusr.addEventListener('click', userdelete);
 }
 //投稿
-const sendfHttpRequestlg = (method, url, data) => {
-  return fetch(url, {
-    method: method,
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.token
-    }
-  }).then(response => {
-    if (response.status >= 400) {
-      // !response.ok
-      return response.json().then(errResData => {
-        const error = new Error('Something went wrong!');
-        error.data = errResData;
-        throw error;
-      });
-    }
-    return response.json();
-  });
-};
-console.log(localStorage.token)
-const sendflgData = () => {
-  sendfHttpRequestlg('POST', 'https://teachapi.herokuapp.com/posts', {
-      "post_params": {
-        "text": document.getElementById('postpost').value,
-      }
+const userpost = () => {
+  fetch(posurl, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      },
+      body: JSON.stringify({
+        "post_params": {
+          "text": document.getElementById('postpost').value,
+        }
+      })
     })
+    .then(response => response.json())
     .then(json => {
       console.log(json)
       window.location.href = 'timeline.html';
@@ -236,47 +212,31 @@ const sendflgData = () => {
     .then(responseData => {
       console.log(responseData);
     })
-
     .catch(err => {
       console.log(err, err.data);
     });
-};
-const postbttn = document.getElementById('post-lgvtbtnr')
-if (postbttn) {
-  postbttn.addEventListener('click', sendflgData);
+}
+const postusr = document.getElementById('post-lgvtbtnr')
+if (postusr) {
+  postusr.addEventListener('click', userpost);
 }
 // ユーザーのタイムライン
-const MYurl = `https://teachapi.herokuapp.com/users/${myID}/timeline`;
 const timelinelogo = document.getElementById('logo')
 if (timelinelogo) {
-  const sendHttpRequesftlgt = (method, url) => {
-    return fetch(url, {
-        method: method,
+  const usertimeline = () => {
+    fetch(urltimeline, {
+        method: "GET",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json()
-            .then(errResData => {
-              const error = new Error('Something went wrong!');
-              error.data = errResData;
-              throw error;
-            });
-        }
-        return response.json();
-      });
-  };
-  const senddlgdData = () => {
-    sendHttpRequesftlgt('GET', MYurl)
+      .then(response => response.json())
       .then(json => {
         console.log(json)
-        let markuped = "";
+        let mytime = "";
         json.forEach(element => {
-          markuped += `<div class="twitter__block">
+          mytime += `<div class="twitter__block">
       <figure>
           <img src="./img/ryusei.jpg" />
       </figure>
@@ -294,8 +254,8 @@ if (timelinelogo) {
       </div>
   </div>`;
         });
-        let hd = document.getElementById('timeline');
-        hd.insertAdjacentHTML('beforeend', markuped);
+        let timelineget = document.getElementById('timeline');
+        timelineget.insertAdjacentHTML('beforeend', mytime);
         console.log(json.stringify);
       })
       .then(responseData => {
@@ -304,174 +264,108 @@ if (timelinelogo) {
       .catch(err => {
         console.log(err, err.data);
       });
-  };
-  timelinelogo.addEventListener('click', senddlgdData);
+  }
+  timelinelogo.addEventListener('click', usertimeline);
 }
 //投稿編集
 const postrefix = document.getElementById("re_post")
 if (postrefix) {
-  postrefix.addEventListener("click", (event) => {
-    event.preventDefault();
-    const sendreposts = (method, url, data) => {
-      return fetch(url, {
-        method: method,
-        body: JSON.stringify(data),
+  const userpostfix = () => {
+    //特例URLここにセット
+    const edit_text_id = document.querySelector("#edit_text_id").value;
+    const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
+    //特例URLここにセット
+    fetch(reposturl, {
+        method: "PUT",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
-        }
-      }).then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json().then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-        }
-        return response.json();
-      });
-    };
-    const edit_text_id = document.querySelector("#edit_text_id").value;
-    console.log(edit_text_id)
-    const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
-    const sendposts = () => {
-      sendreposts('PUT', reposturl, {
+        },
+        body: JSON.stringify({
           "post_params": {
             "text": document.getElementById('repost').value,
           }
         })
-        .then(json => {
-          console.log(json)
-          localStorage.text = json.text;
-          window.location.href = 'timeline.html';
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const repost_btn = document.getElementById('re_post')
-    const result = document.getElementsByClassName('btn-success');
-    console.log(repost_btn)
-    console.log(result)
-    if (repost_btn) {
-      repost_btn.addEventListener('click', sendposts);
-    }
-  });
+      })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        localStorage.text = json.text;
+        window.location.href = 'timeline.html';
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+  }
+  postrefix.addEventListener('click', userpostfix);
 }
 //投稿削除
-const postdel = document.getElementById("del_post")
-if (postdel) {
-  postdel.addEventListener("click", (event) => {
-    event.preventDefault();
-    const deletrequest = (method, url, data) => {
-      return fetch(url, {
-        method: method,
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.token
-        }
-      }).then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json().then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-        }
-        return response.json();
-      });
-    };
-
-    const delet_text_id = document.querySelector("#edit_text_id").value;
-    const deleteurl = `https://teachapi.herokuapp.com/posts/${delet_text_id}`
-
-    const deletefetched = () => {
-      deletrequest('DELETE', deleteurl, )
-        .then(json => {
-          console.log(json)
-          window.location.href = 'timeline.html';
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const del_posts = document.getElementById('del_post')
-    if (del_posts) {
-      del_posts.addEventListener('click', deletefetched);
-    }
-  });
-}
-//タイムラインのページを取得する。
-// const show_timeline = document.getElementById('timeline_submit')
-// if (show_timeline) {
-//   show_timeline.addEventListener("click", (event) => {
-//     event.preventDefault();
-//     // const users_pages = document.getElementById('pages').value;
-//     // const users_limits = document.getElementById('limits').value;
-//     // const users_querys = document.getElementById('querys').value;
-//     // page=${users_pages}&limit=${users_limits}&query=${users_querys}
-
-const MY_url = `https://teachapi.herokuapp.com/posts`;
-const get_data = document.getElementById('timeline')
-if (get_data) {
-  const users_timeline = (method, url) => {
-    return fetch(url, {
-        method: method,
+const postdelete = document.getElementById("del_post")
+if (postdelete) {
+  const userpostdelete = () => {
+    //特例URLここにセット
+    const edit_text_id = document.querySelector("#edit_text_id").value;
+    const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
+    //特例URLここにセット
+    fetch(reposturl, {
+        method: "DELETE",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json()
-            .then(errResData => {
-              const error = new Error('Something went wrong!');
-              error.data = errResData;
-              throw error;
-            });
-        }
-        return response.json();
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        alert("投稿を消しました。")
+        window.location.href = 'timeline.html';
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
       });
-  };
-  // const sendtimeline = () => {
-  users_timeline('GET', MY_url)
+  }
+  postdelete.addEventListener('click', userpostdelete);
+}
+//タイムラインのページを取得する。
+const postget = document.getElementById('timeline')
+if (postget) {
+  fetch(posurl, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => response.json())
     .then(json => {
       console.log(json)
       let time = "";
       json.forEach(element => {
         time += `<div class="twitter__block">
-        <figure>
-            <img src="./img/ryusei.jpg" />
-        </figure>
-        <div class="twitter__block-text">
-            <div class="name">${element.user.name}<span class="name_reply">@${element.id}</span></div>
-            <div class="date">${element.user.created_at}</div>
-            <div class="text">
-                ${element.text}
-            </div>
-            <div class="twitter__icon">
-                <span class="twitter-bubble"></span>
-                <span class="twitter-loop"></span>
-                <span class="twitter-heart"></span>
-            </div>
-        </div>
-    </div>`;
+          <figure>
+              <img src="./img/ryusei.jpg" />
+          </figure>
+          <div class="twitter__block-text">
+              <div class="name">${element.user.name}<span class="name_reply">@${element.id}</span></div>
+              <div class="date">${element.user.created_at}</div>
+              <div class="text">
+                  ${element.text}
+              </div>
+              <div class="twitter__icon">
+                  <span class="twitter-bubble"></span>
+                  <span class="twitter-loop"></span>
+                  <span class="twitter-heart"></span>
+              </div>
+          </div>
+      </div>`;
       });
-      let hd = document.getElementById('timeline');
-      hd.insertAdjacentHTML('beforeend', time);
+      postget.insertAdjacentHTML('beforeend', time);
       console.log(json.stringify);
     })
     .then(responseData => {
@@ -481,137 +375,91 @@ if (get_data) {
       console.log(err, err.data);
     });
 }
-// };
-// const get_data = document.getElementById('timeline_submit')
-// if (get_data) {
-//   get_data.addEventListener('click', sendtimeline);
-// }
-
 //チャットルームの実装
 const show_chat = document.getElementById('chatbtn')
 if (show_chat) {
-  show_chat.addEventListener("click", (event) => {
-    event.preventDefault();
-    const chatrequest = (method, url, data) => {
-      return fetch(url, {
-        method: method,
-        body: JSON.stringify(data),
+  const makeroom = () => {
+    const chat_name = document.getElementById('chattitle').value
+    fetch(chatroomurl, {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
-        }
-      }).then(response => {
-        if (response.status >= 400) {
-          // !response.ok
-          return response.json().then(errResData => {
-            const error = new Error('Something went wrong!');
-            error.data = errResData;
-            throw error;
-          });
-        }
-        return response.json();
-      });
-    };
-    console.log(localStorage.token)
-    const chat_name = document.getElementById('chattitle').value
-    const sendchatrequest = () => {
-      chatrequest('POST', 'https://teachapi.herokuapp.com/chatrooms', {
+        },
+        body: JSON.stringify({
           "chatroom_params": {
             "name": chat_name
           }
         })
-        .then(json => {
-          console.log(json)
-          const chat_time = `<div id="title" class="line__title">
-        <a href="chat.html"> ${json.name}</a>
-        </div> `;
-          const chatroom_posts = document.getElementById('chat_Btn');
-          chatroom_posts.insertAdjacentHTML('beforeend', chat_time);
-          window.location.href = 'all_chatroom.html';
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
+      })
+      .then(response => response.json())
+      .then(json => {
+        const chat_time = `<div id="title" class="line__title">
+  <a href="chat.html"> ${json.name}</a>
+  </div> `;
+        const chatroom_posts = document.getElementById('chat_Btn');
+        chatroom_posts.insertAdjacentHTML('beforeend', chat_time);
+        window.location.href = 'all_chatroom.html';
+      })
+      .then(responseData => {
+        console.log(responseData);
+      })
 
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const chatBtn = document.getElementById('chatbtn')
-    if (chatBtn) {
-      chatBtn.addEventListener('click', sendchatrequest);
-    }
-  });
+      .then(responseData => {
+        console.log(responseData);
+      })
+      .catch(err => {
+        console.log(err, err.data);
+      });
+  }
+  show_chat.addEventListener('click', makeroom)
 }
 //チャットルームの一覧の作成
-const show_chatroom = document.getElementById('Chatbtn')
-console.log(show_chatroom)
-if (show_chatroom) {
-  show_chatroom.addEventListener("click", (event) => {
-    event.preventDefault();
-    const chat_pages = document.getElementById('chat_page').value;
-    const chat_limits = document.getElementById('chat_limit').value;
-    const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
-    console.log(chat_url)
-
-    const users_chatname = (method, url) => {
-      return fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.token
-          }
-        })
-        .then(response => {
-          if (response.status >= 400) {
-            // !response.ok
-            return response.json()
-              .then(errResData => {
-                const error = new Error('Something went wrong!');
-                error.data = errResData;
-                throw error;
-              });
-          }
-          return response.json();
-        });
-    };
-    const sendchatroom = () => {
-      users_chatname('GET', chat_url)
-        .then(json => {
-          console.log(json)
-          let chatime = "";
-          json.forEach(element => {
-            chatime += `<div class="col-lg-4">
-            <div class="card">
-              <img class="card-img-top" src="./img/ozi.jpg" alt="ライトコースのイメージ画像">
-              <div class="card-body">
-                <h4 class="card-title">${element.name}</h4>
-                <a href="chat.html" class="btn btn-primary">👨‍❤️‍👨${element.id}番👨‍❤️‍👨</a>
-              </div>
-            </div>
-          </div> `;
-          });
-          let chahd = document.getElementById('row');
-          chahd.insertAdjacentHTML('beforeend', chatime);
-          console.log(json.stringify);
-        })
-        .then(responseData => {
-          console.log(responseData);
-        })
-        .catch(err => {
-          console.log(err, err.data);
-        });
-    };
-    const get_room = document.getElementById('Chatbtn')
-    if (get_room) {
-      get_room.addEventListener('click', sendchatroom);
-    }
-  });
+const show_mychatroom = document.getElementById('Chatbtn')
+if (show_mychatroom) {
+  //特例にURL設置
+  const chat_pages = document.getElementById('chat_page').value;
+  const chat_limits = document.getElementById('chat_limit').value;
+  const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
+  //特例にURL設置
+  const chatroomshow=()=>{
+  fetch(chat_url, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => response.json())
+    .then(json => {
+      console.log(json)
+      let chatime = "";
+      json.forEach(element => {
+        chatime += `<div class="col-lg-4">
+        <div class="card">
+          <img class="card-img-top" src="./img/ozi.jpg" alt="ライトコースのイメージ画像">
+          <div class="card-body">
+            <h4 class="card-title">${element.name}</h4>
+            <a href="chat.html" class="btn btn-primary">👨‍❤️‍👨${element.id}番👨‍❤️‍👨</a>
+          </div>
+        </div>
+      </div> `;
+      });
+      let chatroompage = document.getElementById('row');
+      chatroompage.insertAdjacentHTML('beforeend', chatime);
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
+  }
+  show_mychatroom.addEventListener('click',chatroomshow)
 }
 
 //他人のチャットルームに参加する。
 const show_chatroomids = document.getElementById('catrooms_btn')
-console.log(show_chatroom)
 if (show_chatroomids) {
   show_chatroomids.addEventListener("click", (event) => {
     event.preventDefault();
