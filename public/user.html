@@ -50,10 +50,6 @@
             </div> -->
       </div>
     </div>
-    <div col-md-3>
-      <input id="post_dofollw">
-      <button id="getting">フォローする</button>
-    </div>
   </div>
   <script src="../dist/js/bundle.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -66,8 +62,24 @@
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
   </script>
   <script>
-
-
+    //フォロー機能
+    function follow(id) {
+      const urlFollow = `https://teachapi.herokuapp.com/users/${id}/follow`;
+      console.log(urlFollow)
+      fetch(urlFollow, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        }).then(response => response.json())
+        .then(json => {
+          alert(json.id + "番をフォローしました。");
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    };
   </script>
 </body>
 

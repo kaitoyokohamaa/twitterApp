@@ -118,6 +118,7 @@ fetch(urls, {
              <p class="acount">＠${element.id}</p>
             <p class="card-text">${element.bio}</p>
             <p class="card-text"><a href="fix.html">ユーザー編集</a></p>
+            <p class="card-text" onclick="follow(${element.id})">フォローする</p>
           </div>
         </div>
       </div>`;
@@ -571,74 +572,23 @@ if (mychat) {
       console.log(err, err.data);
     });
 }
-
-//フォロー機能
-const post_dofollw = document.getElementById('getting')
-if (post_dofollw) {
-  const mydollowing = () => {
-    const cahts_getfollow = document.getElementById('post_dofollw').value;
-    const chat_folowgeturl = `https://teachapi.herokuapp.com/users/${cahts_getfollow}/follow`;
-    fetch(chat_folowgeturl, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.token
-        }
-      })
-      .then(response => response.json())
-      .then(json => {
-        alert(json.id + "番をフォローしました。");
-      })
-      .then(responseData => {
-        console.log(responseData);
-      })
-      .catch(err => {
-        console.log(err, err.data);
-      });
-  }
-  post_dofollw.addEventListener('click', mydollowing)
-}
-//フォローを外す
-const post_unfollwed = document.getElementById('post-unfollowing')
-if (post_unfollwed) {
-  const unfollower = () => {
-    const cahts_unfollow = document.getElementById('unfollow').value;
-    const chat_unfolowgeturl = `https://teachapi.herokuapp.com/users/${cahts_unfollow}/follow`;
-    fetch(chat_unfolowgeturl, {
-        method: "DELETE",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.token
-        }
-      })
-      .then(response => response.json())
-      .then(json => {
-        alert(json.id + "番をアンフォローしました。");
-      })
-      .then(responseData => {
-        console.log(responseData);
-      })
-      .catch(err => {
-        console.log(err, err.data);
-      });
-  }
-  post_unfollwed.addEventListener('click', unfollower);
-}
-// フォロ一覧を取得する
+//フォロー機能DOM操作ができなかったので、user.htmlに書き込み
+//unfollowもDOM操作ができなかったためfollow.htmlに書き込み
+// フォロワ一覧を取得する
 const post_gwtfollw = document.getElementById('urs')
 if (post_gwtfollw) {
-    fetch(chat_nowfolower, {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.token
-        }
-      })
-      .then(response => response.json())
-      .then(json => {
-        let marimgkup = "";
-        json.forEach(element => {
-          marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+  fetch(chat_nowfolower, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => response.json())
+    .then(json => {
+      let marimgkup = "";
+      json.forEach(element => {
+        marimgkup += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title">${element.name}</h5>
                    <p class="acount">＠${element.id}</p>
@@ -646,49 +596,50 @@ if (post_gwtfollw) {
                 </div>
               </div>
             </div>`;
-        });
-        let hed = document.getElementById('urs');
-        hed.insertAdjacentHTML('beforeend', marimgkup);
-      })
-      .then(responseData => {
-        console.log(responseData);
-      })
-      .catch(err => {
-        console.log(err, err.data);
       });
-  }
-// フォロワー覧を取得する
+      let hed = document.getElementById('urs');
+      hed.insertAdjacentHTML('beforeend', marimgkup);
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
+    });
+}
+// フォロー覧を取得する
 const my_folower = document.getElementById('urss')
 if (my_folower) {
   fetch(chatfollwer, {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.token
-    }
-  })
-  .then(response => response.json())
-  .then(json => {
-    let myfower = "";
-    json.forEach(element => {
-      myfower += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.token
+      }
+    })
+    .then(response => response.json())
+    .then(json => {
+      let myfower = "";
+      json.forEach(element => {
+        myfower += `<div class="col mb-4"><div class="card h-100"><img src="img/ryusei.jpg" class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title">${element.name}</h5>
              <p class="acount">＠${element.id}</p>
             <p class="card-text">${element.bio}</p>
+            <p class="card-text" onclick="unfollow(${element.id})">フォロー外す</p>
           </div>
         </div>
       </div>`;
+      });
+      let hede = document.getElementById('urss');
+      hede.insertAdjacentHTML('beforeend', myfower);
+    })
+    .then(responseData => {
+      console.log(responseData);
+    })
+    .catch(err => {
+      console.log(err, err.data);
     });
-    let hede = document.getElementById('urss');
-    hede.insertAdjacentHTML('beforeend', myfower);
-  })
-  .then(responseData => {
-    console.log(responseData);
-  })
-  .catch(err => {
-    console.log(err, err.data);
-  });
 }
 //ログアウト
 const mylogout = document.getElementById('post-logout')

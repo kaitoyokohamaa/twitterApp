@@ -15,10 +15,10 @@
   <div class="row">
     <div class="col-md-2">
       <div>
-        <a href="follow.html" class="btn btn-outline-primary">following</a>
+        <a href="follow.html" class="btn btn-outline-primary">follower</a>
       </div>
       <div>
-        <a href="follwer.html" class="btn btn-outline-primary">follwers</a>
+        <a href="follwer.html" class="btn btn-outline-primary">following</a>
       </div>
       <div>
         <a href="user.html" class="btn btn-outline-primary">users</a>
@@ -60,6 +60,25 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
   </script>
+    <script>
+      function unfollow(id) {
+      const urlunFollow = `https://teachapi.herokuapp.com/users/${id}/follow`;
+      console.log(urlunFollow)
+      fetch(urlunFollow, {
+        method: "DELETE",
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.token
+          }
+        }).then(response => response.json())
+        .then(json => {
+          alert(json.id + "番のフォローを外しました");
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    };
+      </script>
 </body>
 
 </html>
