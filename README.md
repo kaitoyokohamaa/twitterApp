@@ -1,1 +1,1 @@
-# api-opi
+# twitterの擬似アプリです。
