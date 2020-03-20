@@ -9,6 +9,7 @@ import {
   postlgBtn,
   user_maillg
 } from './models/userlogin';
+import Axios from 'axios';
 //新規登録に必要な変数。
 //ローカルストレージ関連
 const myID = localStorage.getItem('id');
@@ -25,7 +26,7 @@ const chatfollwer = `https://teachapi.herokuapp.com/users/${myID}/followings`;
 const chat_nowfolower = `https://teachapi.herokuapp.com/users/${myID}/followers`;
 //新規登録
 const sendData = () => {
-  fetch(url, {
+  Axios(url, {
       method: "POST",
       body: JSON.stringify({
         "sign_up_user_params": {
@@ -41,10 +42,8 @@ const sendData = () => {
         'Content-Type': 'application/json'
       }
     })
-    .then(response => response.json())
     .then(json => {
       //ユーザ生成時に以下の情報をローカルストレージに入れる。
-      console.log(json)
       localStorage.token = json.token,
         localStorage.id = json.id,
         localStorage.name = json.name,
@@ -72,7 +71,7 @@ if (postlgBtn) {
         "password_confirmation": user_confirmpass.value
       }
     }
-    fetch(urlsign, {
+    Axios(urlsign, {
         method: "POST",
         headers: {
           'Accept': 'application/json',
@@ -80,7 +79,6 @@ if (postlgBtn) {
         },
         body: JSON.stringify(datasign)
       })
-      .then(response => response.json())
       .then(json => {
         //ユーザ生成時に以下の情報をローカルストレージに入れる。
         localStorage.token = json.token,
@@ -101,14 +99,13 @@ if (postlgBtn) {
   }
 }
 // ユーザー一覧
-fetch(urls, {
+Axios(urls, {
     method: "GET",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + localStorage.token
     },
   })
-  .then(response => response.json())
   .then(json => {
     let markup = "";
     json.forEach(element => {
@@ -134,7 +131,7 @@ fetch(urls, {
   });
 // ユーザー編集
 const usersfix = () => {
-  fetch(urlfix, {
+  Axios(urlfix, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',
@@ -147,7 +144,6 @@ const usersfix = () => {
         }
       })
     })
-    .then(response => response.json())
     .then(json => {
       localStorage.name = json.name,
         localStorage.bio = json.bio
@@ -166,7 +162,7 @@ if (refix) {
 }
 //アカウントの削除
 const userdelete = () => {
-  fetch(urlfix, {
+  Axios(urlfix, {
       method: "DELETE",
       headers: {
         'Content-Type': 'application/json',
@@ -193,7 +189,7 @@ if (deleteusr) {
 }
 //投稿
 const userpost = () => {
-  fetch(posurl, {
+  Axios(posurl, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -205,7 +201,6 @@ const userpost = () => {
         }
       })
     })
-    .then(response => response.json())
     .then(json => {
       console.log(json)
       window.location.href = 'timeline.html';
@@ -225,14 +220,13 @@ if (postusr) {
 const timelinelogo = document.getElementById('logo')
 if (timelinelogo) {
   const usertimeline = () => {
-    fetch(urltimeline, {
+    Axios(urltimeline, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => response.json())
       .then(json => {
         console.log(json)
         let mytime = "";
@@ -276,7 +270,7 @@ if (postrefix) {
     const edit_text_id = document.querySelector("#edit_text_id").value;
     const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
     //特例URLここにセット
-    fetch(reposturl, {
+    Axios(reposturl, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json',
@@ -288,7 +282,6 @@ if (postrefix) {
           }
         })
       })
-      .then(response => response.json())
       .then(json => {
         console.log(json)
         localStorage.text = json.text;
@@ -311,14 +304,13 @@ if (postdelete) {
     const edit_text_id = document.querySelector("#edit_text_id").value;
     const reposturl = `https://teachapi.herokuapp.com/posts/${edit_text_id}`;
     //特例URLここにセット
-    fetch(reposturl, {
+    Axios(reposturl, {
         method: "DELETE",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => response.json())
       .then(json => {
         console.log(json)
         alert("投稿を消しました。")
@@ -336,14 +328,13 @@ if (postdelete) {
 //タイムラインのページを取得する。
 const postget = document.getElementById('timeline')
 if (postget) {
-  fetch(posurl, {
+  Axios(posurl, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.token
       }
     })
-    .then(response => response.json())
     .then(json => {
       console.log(json)
       let time = "";
@@ -381,7 +372,7 @@ const show_chat = document.getElementById('chatbtn')
 if (show_chat) {
   const makeroom = () => {
     const chat_name = document.getElementById('chattitle').value
-    fetch(chatroomurl, {
+    Axios(chatroomurl, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -393,7 +384,6 @@ if (show_chat) {
           }
         })
       })
-      .then(response => response.json())
       .then(json => {
         const chat_time = `<div id="title" class="line__title">
   <a href="chat.html"> ${json.name}</a>
@@ -424,14 +414,13 @@ if (show_mychatroom) {
     const chat_limits = document.getElementById('chat_limit').value;
     const chat_url = `https://teachapi.herokuapp.com/chatrooms?page=${chat_pages}&limit=${chat_limits}`;
     //特例にURL設置
-    fetch(chat_url, {
+    Axios(chat_url, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => response.json())
       .then(json => {
         console.log(json)
         let chatime = "";
@@ -466,14 +455,13 @@ if (show_chatroomids) {
     const caht_Ids = document.getElementById('chat_ids').value;
     const chat_idsurl = `https://teachapi.herokuapp.com/chatrooms/${caht_Ids}/join`;
     //特例にURL設置
-    fetch(chat_idsurl, {
+    Axios(chat_idsurl, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
         }
       })
-      .then(response => response.json())
       .then(json => {
         alert('参加しました');
         window.location.href = 'chat.html';
@@ -497,7 +485,7 @@ if (get_roomstext) {
     const chat_textsurl = `https://teachapi.herokuapp.com/chatrooms/${cahts_Ids}/messages`;
     const chat_text = document.getElementById('messagecontent').value;
     //特例にURL設置
-    fetch(chat_textsurl, {
+    Axios(chat_textsurl, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -509,7 +497,6 @@ if (get_roomstext) {
           }
         })
       })
-      .then(response => response.json())
       .then(json => {
         console.log(json);
         const mychat = localStorage.chatroom_id = json.chatroom_id
@@ -540,14 +527,13 @@ if (mychat) {
   const qs = new URLSearchParams(params);
   const chat_textsgeturl = `https://teachapi.herokuapp.com/chatrooms/${getchstid}/messages?${qs}`;
   //特例URL
-  fetch(chat_textsgeturl, {
+  Axios(chat_textsgeturl, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.token
       }
     })
-    .then(response => response.json())
     .then(json => {
       console.log(json);
       let chatgets = "";
@@ -577,14 +563,13 @@ if (mychat) {
 // フォロワ一覧を取得する
 const post_gwtfollw = document.getElementById('urs')
 if (post_gwtfollw) {
-  fetch(chat_nowfolower, {
+  Axios(chat_nowfolower, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.token
       }
     })
-    .then(response => response.json())
     .then(json => {
       let marimgkup = "";
       json.forEach(element => {
@@ -610,14 +595,13 @@ if (post_gwtfollw) {
 // フォロー覧を取得する
 const my_folower = document.getElementById('urss')
 if (my_folower) {
-  fetch(chatfollwer, {
+  Axios(chatfollwer, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.token
       }
     })
-    .then(response => response.json())
     .then(json => {
       let myfower = "";
       json.forEach(element => {
